@@ -1,7 +1,6 @@
-﻿using Discord;
+﻿using System.Collections;
+using Discord;
 using Discord.WebSocket;
-
-namespace Bilbo;
 
 public class Program
 {
