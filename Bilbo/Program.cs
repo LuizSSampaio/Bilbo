@@ -1,39 +1,42 @@
-﻿using System.Collections;
+﻿using Bilbo.Commands;
+using Bilbo.Models;
 using Discord;
 using Discord.WebSocket;
+
+namespace Bilbo;
 
 public class Program
 {
     private readonly DiscordSocketClient _client;
 
+    private Status _statusCommand = new();
+
     public static Task Main(string[] args) => new Program().MainAsync();
 
-    public Program()
+    private Program()
     {
         var config = new DiscordSocketConfig
         {
             GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent
         };
 
-        _client = new DiscordSocketClient();
+        _client = new DiscordSocketClient(config);
         _client.Log += LogAsync;
         _client.Ready += ReadyAsync;
-        _client.MessageReceived += MessageReceivedAsync;
+        _client.SlashCommandExecuted += SlashCommandHandler;
         _client.InteractionCreated += InteractionCreatedAsync;
     }
 
-    public async Task MainAsync()
+    private async Task MainAsync()
     {
         var token = Environment.GetEnvironmentVariable("BILBO_TOKEN");
         if (string.IsNullOrWhiteSpace(token))
         {
-            Console.WriteLine(token);
             throw new ArgumentNullException("BILBO_TOKEN",
                 "The TOKEN environment variable is not set or is set to an invalid value.");
         }
 
         await _client.LoginAsync(TokenType.Bot, token);
-
         await _client.StartAsync();
 
         await Task.Delay(Timeout.Infinite);
@@ -45,43 +48,48 @@ public class Program
         return Task.CompletedTask;
     }
 
-    private Task ReadyAsync()
+    private async Task<Task> ReadyAsync()
     {
         Console.WriteLine($"{_client.CurrentUser} is connected!");
+
+        foreach (var command in CommandLocation.GlobalCommands)
+        {
+            var globalCommand = new SlashCommandBuilder();
+            globalCommand.WithName(command.Name);
+            globalCommand.WithDescription(command.Description);
+            if (command.Options != null)
+            {
+                foreach (var option in command.Options)
+                {
+                    globalCommand.AddOption(option.Name, option.Type, option.Description, option.Required);
+                }
+            }
+
+            try
+            {
+                await _client.CreateGlobalApplicationCommandAsync(globalCommand.Build());
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine(error);
+                throw;
+            }
+        }
+
         return Task.CompletedTask;
     }
 
-    private Task MessageReceivedAsync(SocketMessage message)
+    private Task SlashCommandHandler(SocketSlashCommand command)
     {
-        if (message.Author.Id == _client.CurrentUser.Id)
-        {
-            return Task.CompletedTask;
-        }
+        var usedCommand = CommandLocation.GlobalCommands
+            .FirstOrDefault(globalCommand => globalCommand.Name == command.Data.Name);
 
-        if (message.Content == "!ping")
-        {
-            var componentBuilder = new ComponentBuilder()
-                .WithButton("Click me!", "click_me", ButtonStyle.Primary);
-            message.Channel.SendMessageAsync("Pong!", components: componentBuilder.Build());
-        }
+        usedCommand?.CommandAction(command);
 
         return Task.CompletedTask;
     }
 
     private async Task InteractionCreatedAsync(SocketInteraction interaction)
     {
-        if (interaction is not SocketMessageComponent messageComponent)
-        {
-            return;
-        }
-
-        if (messageComponent.Data.CustomId == "click_me")
-        {
-            await messageComponent.UpdateAsync(x => x.Content = "Clicked!");
-        }
-        else
-        {
-            await messageComponent.UpdateAsync(x => x.Content = "Something else was clicked!");
-        }
     }
 }

@@ -1,17 +1,16 @@
-using Bilbo.Models;
 using Bilbo.Services;
+using Discord.WebSocket;
 
 namespace Bilbo.Commands;
 
 public class Status : CommandFramework
 {
-    public Status(string command, string description, Option option, bool isGlobal) : base(command, description, option,
-        isGlobal)
+    public Status() : base("status", "Test", null)
     {
     }
 
-    public override void CommandAction()
+    public override async void CommandAction(SocketSlashCommand command)
     {
-        throw new NotImplementedException();
+        await command.RespondAsync("Test");
     }
 }

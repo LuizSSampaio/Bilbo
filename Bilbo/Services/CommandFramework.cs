@@ -1,30 +1,22 @@
 using Bilbo.Models;
+using Discord.WebSocket;
 
 namespace Bilbo.Services;
 
 public abstract class CommandFramework
 {
-    private string _command;
-    private string _description;
-    private Option _option;
-    private bool _isGlobal;
+    internal string Name { get; }
+    internal string Description { get; }
+    internal List<Option>? Options { get; }
 
-    protected CommandFramework(string command, string description, Option option, bool isGlobal)
+    protected CommandFramework(string command, string description, List<Option>? options)
     {
-        _command = command ?? throw new ArgumentNullException(nameof(command));
-        _description = description ?? throw new ArgumentNullException(nameof(description));
-        _option = option;
-        _isGlobal = isGlobal;
+        Name = command ?? throw new ArgumentNullException(nameof(command));
+        Description = description ?? throw new ArgumentNullException(nameof(description));
+        Options = options;
         
-        if (isGlobal)
-        {
-            CommandLocation.GlobalCommands.Add(this);
-        }
-        else
-        {
-            CommandLocation.GuildCommands.Add(this);
-        }
+        CommandLocation.GlobalCommands.Add(this);
     }
 
-    public abstract void CommandAction();
+    public abstract void CommandAction(SocketSlashCommand command);
 }

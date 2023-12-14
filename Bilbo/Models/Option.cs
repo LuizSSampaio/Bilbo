@@ -4,10 +4,10 @@ namespace Bilbo.Models;
 
 public struct Option
 {
-    private string Name { get; set; }
-    private ApplicationCommandOptionType Type { get; set; }
-    private string Description { get; set; }
-    private bool Required { get; set; }
+    internal string Name { get; }
+    internal ApplicationCommandOptionType Type { get; }
+    internal string Description { get; }
+    internal bool Required { get; }
 
     public Option(string name, ApplicationCommandOptionType type, string description, bool required)
     {
