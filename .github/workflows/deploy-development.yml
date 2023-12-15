@@ -1,0 +1,56 @@
+name: bilbo deployment
+
+on:
+  push:
+      branches: [dev]
+  pull_request:
+      branches: [dev]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "6.0.x"
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore -c Release
+      - name: Publish
+        run: dotnet publish -c Release -o ./publish Bilbo/Bilbo.csproj
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Build and push docker image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:${{ github.sha }}
+          context: .
+          file: ./Dockerfile
+  deploy:
+    runs-on: ubuntu-latest
+    environment: development
+    needs: build
+    steps:
+      - name: Repo Checkout
+        uses: actions/checkout@v4
+      - name: SSH and Docker run
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ vars.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_SSH_PASSWORD }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
+          script: |
+            docker stop bilbo-unstable || true
+            docker rm bilbo-unstable || true
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:${{ github.sha }}
+            docker run -d --name bilbo-unstable -e BILBO_TOKEN=${{ secrets.BILBO_TOKEN }} ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:${{ github.sha }}
+      
