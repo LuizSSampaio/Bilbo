@@ -49,7 +49,6 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_SSH_PORT }}
           script: |
-            echo "SSH connection successful"
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:latest
             docker run -d --name bilbo ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:latest
       
