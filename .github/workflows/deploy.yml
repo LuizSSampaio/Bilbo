@@ -50,5 +50,5 @@ jobs:
           port: ${{ secrets.SERVER_SSH_PORT }}
           script: |
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:latest
-            docker run -d --name bilbo ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:latest
+            docker run -d --name bilbo -e BILBO_TOKEN=${{ secrets.BILBO_TOKEN }} ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:latest
       
