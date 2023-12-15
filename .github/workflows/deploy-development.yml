@@ -1,4 +1,4 @@
-name: bilbo deployment
+name: bilbo unstable
 
 on:
   push:
