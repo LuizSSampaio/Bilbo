@@ -46,7 +46,7 @@ jobs:
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ vars.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          password: ${{ secrets.SERVER_SSH_PASSWORD }}
           port: ${{ secrets.SERVER_SSH_PORT }}
           script: |
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:latest
