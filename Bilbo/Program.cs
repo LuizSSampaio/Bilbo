@@ -10,6 +10,7 @@ public class Program
     private readonly DiscordSocketClient _client;
 
     private Status _statusCommand;
+    private Help _helpCommand = new();
 
     public static Task Main(string[] args) => new Program().MainAsync();
 
