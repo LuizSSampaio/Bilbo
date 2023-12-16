@@ -9,7 +9,7 @@ public class Status : CommandFramework
 {
     private readonly DiscordSocketClient _client;
 
-    public Status(DiscordSocketClient client) : base("status", "Test", null)
+    public Status(DiscordSocketClient client) : base("status", "A simple command to see the bot status", null)
     {
         _client = client;
     }
@@ -39,7 +39,7 @@ public class Status : CommandFramework
 
     private int GetChannelCount()
     {
-        return _client.Guilds.Sum(guild => guild.Channels.Count);
+        return _client.Guilds.Sum(guild => guild.Channels.Count(c => c is not SocketCategoryChannel));
     }
 
     public override async void CommandAction(SocketSlashCommand command)
