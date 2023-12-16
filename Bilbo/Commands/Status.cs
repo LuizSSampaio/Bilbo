@@ -44,9 +44,8 @@ public class Status : CommandFramework
 
     public override async void CommandAction(SocketSlashCommand command)
     {
-        var builder = new EmbedBuilder();
+        var builder = new CustomEmbedBuilder();
 
-        builder.WithAuthor("❤️ With love from Bilbo", null, "https://github.com/LuizSSampaio/Bilbo");
         builder.WithTitle("📊 Status");
         builder.WithDescription("[Click here](https://uptime.lsamp.net/status/bilbo) to check the status website.");
 
@@ -56,11 +55,6 @@ public class Status : CommandFramework
         builder.AddField("🙍 Number of Users: ", GetUsersCount(), true);
         builder.AddField("📢 Number of Channels: ", GetChannelCount(), true);
         builder.AddField("🖥️ Check my website: ", "[Click Here](https://bilbo.lsamp.net)", true);
-
-        builder.WithTimestamp(DateTimeOffset.Now);
-        builder.WithFooter("Need help? Check out the /help command.");
-
-        builder.WithColor(Color.Blue);
 
         await command.RespondAsync("", new[] { builder.Build() });
     }
