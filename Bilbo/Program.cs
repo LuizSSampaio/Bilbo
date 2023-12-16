@@ -9,7 +9,7 @@ public class Program
 {
     private readonly DiscordSocketClient _client;
 
-    private Status _statusCommand = new();
+    private Status _statusCommand;
 
     public static Task Main(string[] args) => new Program().MainAsync();
 
@@ -21,6 +21,8 @@ public class Program
         };
 
         _client = new DiscordSocketClient(config);
+        _statusCommand = new Status(_client);
+        
         _client.Log += LogAsync;
         _client.Ready += ReadyAsync;
         _client.SlashCommandExecuted += SlashCommandHandler;
