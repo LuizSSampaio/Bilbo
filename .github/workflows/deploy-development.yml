@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:${{ github.sha }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:unstable
           context: .
           file: ./Dockerfile
   deploy:
@@ -51,6 +51,6 @@ jobs:
           script: |
             docker stop bilbo-unstable || true
             docker rm bilbo-unstable || true
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:${{ github.sha }}
-            docker run -d --name bilbo-unstable -e BILBO_TOKEN=${{ secrets.BILBO_TOKEN }} ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:${{ github.sha }}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:unstable
+            docker run -d --name bilbo-unstable -e BILBO_TOKEN=${{ secrets.BILBO_TOKEN }} ${{ secrets.DOCKERHUB_USERNAME }}/bilbo:unstable
       
