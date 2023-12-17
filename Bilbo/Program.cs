@@ -17,6 +17,7 @@ public class Program
     // Moderation Commands
     private Ban _banCommand;
     private Kick _kickCommand;
+    private Mute _muteCommand;
 
     public static Task Main(string[] args) => new Program().MainAsync();
 
@@ -32,6 +33,7 @@ public class Program
         _statusCommand = new Status(_client);
         _banCommand = new Ban(_client);
         _kickCommand = new Kick(_client);
+        _muteCommand = new Mute(_client);
 
         _client.Log += LogAsync;
         _client.Ready += ReadyAsync;
