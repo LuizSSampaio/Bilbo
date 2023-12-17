@@ -24,9 +24,11 @@ public class Kick : CommandFramework
     // TODO: Command response on a specific channel(Configurable at the website)
     public override void CommandAction(SocketSlashCommand command)
     {
-        if (command.User is not SocketGuildUser commandUser || !commandUser.GuildPermissions.KickMembers)
+        var authorPermissionChecker =
+            new AuthorPermissionChecker(command, new[] { GuildPermission.KickMembers }, null, null);
+
+        if (!authorPermissionChecker.HasPermissions)
         {
-            command.RespondAsync("You do not have permission to use this command.");
             return;
         }
         
