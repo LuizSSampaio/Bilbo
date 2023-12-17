@@ -13,7 +13,7 @@ public class Program
     // Global Commands
     private Status _statusCommand;
     private Help _helpCommand = new();
-    
+
     // Moderation Commands
     private Ban _banCommand;
     private Kick _kickCommand;
@@ -28,11 +28,11 @@ public class Program
         };
 
         _client = new DiscordSocketClient(config);
-        
+
         _statusCommand = new Status(_client);
         _banCommand = new Ban(_client);
         _kickCommand = new Kick(_client);
-        
+
         _client.Log += LogAsync;
         _client.Ready += ReadyAsync;
         _client.SlashCommandExecuted += SlashCommandHandler;
@@ -73,7 +73,8 @@ public class Program
             {
                 foreach (var option in command.Options)
                 {
-                    globalCommand.AddOption(option.Name, option.Type, option.Description, option.Required);
+                    globalCommand.AddOption(option.Name, option.Type, option.Description, option.Required,
+                        choices: option.Choices);
                 }
             }
 
