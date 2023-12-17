@@ -1,4 +1,5 @@
 ﻿using Bilbo.Commands;
+using Bilbo.Commands.Moderation;
 using Bilbo.Models;
 using Discord;
 using Discord.WebSocket;
@@ -9,8 +10,12 @@ public class Program
 {
     private readonly DiscordSocketClient _client;
 
+    // Global Commands
     private Status _statusCommand;
     private Help _helpCommand = new();
+    
+    // Moderation Commands
+    private Ban _banCommand;
 
     public static Task Main(string[] args) => new Program().MainAsync();
 
@@ -22,7 +27,9 @@ public class Program
         };
 
         _client = new DiscordSocketClient(config);
+        
         _statusCommand = new Status(_client);
+        _banCommand = new Ban(_client);
         
         _client.Log += LogAsync;
         _client.Ready += ReadyAsync;
