@@ -81,6 +81,17 @@ public class Mute : CommandFramework
         {
             return;
         }
+        
+        if (command.Channel is SocketGuildChannel guildChannel &&
+            !BotPermissionChecker.CanSendMessageToChannel(command, guildChannel))
+        {
+            return;
+        }
+        
+        if (!BotPermissionChecker.BotCheckDiscord(command, _client, new[] { GuildPermission.ModerateMembers }))
+        {
+            return;
+        }
 
         var user = command.Data.Options.First().Value as SocketGuildUser;
         var timeType = (long)command.Data.Options.ElementAt(1).Value;
@@ -137,8 +148,16 @@ public class Mute : CommandFramework
         embedBuilder.WithColor(Color.Red);
         
         embedBuilder.CustomIdentifiedFooter("Muted", command.User);
-        
-        await user.SendMessageAsync("", false, embedBuilder.Build());
+
+        try
+        {
+            await user.SendMessageAsync("", false, embedBuilder.Build());
+        }
+        catch
+        {
+            var genericErrorMessage = new GenericErrorMessage("The user has disabled DMs.");
+            await command.RespondAsync("", new[] { genericErrorMessage.Build() }, ephemeral: true);
+        }
 
         var timeSpan = timeType switch
         {
@@ -149,9 +168,17 @@ public class Mute : CommandFramework
             4 => TimeSpan.FromDays(value * 7),
             _ => TimeSpan.Zero
         };
-        await user!.SetTimeOutAsync(timeSpan, new RequestOptions { AuditLogReason = reason });
+        try
+        {
+            await user!.SetTimeOutAsync(timeSpan, new RequestOptions { AuditLogReason = reason });
+        }
+        catch
+        {
+            var genericErrorMessage = new GenericErrorMessage("The user has a higher role than the bot.");
+            await command.RespondAsync("", new[] { genericErrorMessage.Build() }, ephemeral: true);
+        }
 
-        embedBuilder.WithDescription($"{user.Mention} has been muted.");
+        embedBuilder.WithDescription($"{user!.Mention} has been muted.");
         await command.RespondAsync("", new[] { embedBuilder.Build() });
     }
 }
