@@ -11,7 +11,7 @@ public class Kick : CommandFramework
     
     private new static readonly List<Option> Options = new()
     {
-        new Option("user", ApplicationCommandOptionType.User, "The user to ban", true),
+        new Option("user", ApplicationCommandOptionType.User, "The user to kick", true),
         new Option("reason", ApplicationCommandOptionType.String, "The reason for the kick", false),
     };
     
