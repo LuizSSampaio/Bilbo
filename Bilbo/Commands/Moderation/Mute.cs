@@ -155,8 +155,7 @@ public class Mute : CommandFramework
         }
         catch
         {
-            var genericErrorMessage = new GenericErrorMessage("The user has disabled DMs.");
-            await command.RespondAsync("", new[] { genericErrorMessage.Build() }, ephemeral: true);
+            // ignored
         }
 
         var timeSpan = timeType switch
@@ -175,10 +174,11 @@ public class Mute : CommandFramework
         catch
         {
             var genericErrorMessage = new GenericErrorMessage("The user has a higher role than the bot.");
-            await command.RespondAsync("", new[] { genericErrorMessage.Build() }, ephemeral: true);
+            await command.RespondAsync("", new[] { genericErrorMessage.Build() }, ephemeral: true); 
+            return;
         }
 
-        embedBuilder.WithDescription($"{user!.Mention} has been muted.");
+        embedBuilder.WithDescription($"{user.Mention} has been muted.");
         await command.RespondAsync("", new[] { embedBuilder.Build() });
     }
 }
