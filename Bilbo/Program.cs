@@ -18,6 +18,7 @@ public class Program
     private Ban _banCommand;
     private Kick _kickCommand;
     private Mute _muteCommand;
+    private UnMute _unMuteCommand;
 
     public static Task Main(string[] args) => new Program().MainAsync();
 
@@ -34,6 +35,7 @@ public class Program
         _banCommand = new Ban(_client);
         _kickCommand = new Kick(_client);
         _muteCommand = new Mute(_client);
+        _unMuteCommand = new UnMute(_client);
 
         _client.Log += LogAsync;
         _client.Ready += ReadyAsync;
