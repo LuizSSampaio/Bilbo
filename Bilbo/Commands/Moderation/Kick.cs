@@ -2,6 +2,7 @@ using Bilbo.Models;
 using Bilbo.Services;
 using Discord;
 using Discord.WebSocket;
+using Exception = System.Exception;
 
 namespace Bilbo.Commands.Moderation;
 
@@ -32,6 +33,17 @@ public class Kick : CommandFramework
             return;
         }
         
+        if (command.Channel is SocketGuildChannel guildChannel &&
+            !BotPermissionChecker.CanSendMessageToChannel(command, guildChannel))
+        {
+            return;
+        }
+        
+        if (!BotPermissionChecker.BotCheckDiscord(command, _client, new[] { GuildPermission.KickMembers }))
+        {
+            return;
+        }
+        
         var user = command.Data.Options.First().Value as SocketGuildUser;
         var reason = command.Data.Options.Last().Value as string;
         var guild = _client.GetGuild(command.GuildId!.Value);
@@ -44,9 +56,26 @@ public class Kick : CommandFramework
         embedBuilder.WithColor(Color.Red);
         
         embedBuilder.CustomIdentifiedFooter("Kicked", command.User);
-        
-        await user.SendMessageAsync("", false, embedBuilder.Build());
-        user?.KickAsync(reason);
+
+        try
+        {
+            await user.SendMessageAsync("", false, embedBuilder.Build());
+        }
+        catch
+        {
+            // ignored
+        }
+
+        try
+        {
+            user?.KickAsync(reason);
+        }
+        catch
+        {
+            var genericErrorMessage = new GenericErrorMessage("The user has a higher role than the bot.");
+            await command.RespondAsync("", new[] { genericErrorMessage.Build() }, ephemeral: true);
+            return;
+        }
         
         embedBuilder.WithDescription($"{user?.Mention} has been kicked.");
         await command.RespondAsync("", new[] { embedBuilder.Build() });
