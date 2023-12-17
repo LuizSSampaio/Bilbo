@@ -46,8 +46,8 @@ public class Mute : CommandFramework
     private new static readonly List<Option> Options = new()
     {
         new Option("user", ApplicationCommandOptionType.User, "The user to ban", true),
-        new Option("time-type", ApplicationCommandOptionType.Integer, "The time type to mute the user", false, Choices),
-        new Option("value", ApplicationCommandOptionType.Integer, "The time value to mute the user", false),
+        new Option("time-type", ApplicationCommandOptionType.Integer, "The time type to mute the user", true, Choices),
+        new Option("value", ApplicationCommandOptionType.Integer, "The time value to mute the user", true),
         new Option("reason", ApplicationCommandOptionType.String, "The reason for the kick", false),
     };
 
@@ -83,8 +83,8 @@ public class Mute : CommandFramework
         }
 
         var user = command.Data.Options.First().Value as SocketGuildUser;
-        var timeType = command.Data.Options.ElementAt(1).Value as long? ?? 1;
-        var value = command.Data.Options.ElementAt(2).Value as long? ?? 5;
+        var timeType = (long)command.Data.Options.ElementAt(1).Value;
+        var value = (long)command.Data.Options.ElementAt(2).Value;
         var reason = command.Data.Options.Last().Value as string;
         var guild = _client.GetGuild(command.GuildId!.Value);
         
