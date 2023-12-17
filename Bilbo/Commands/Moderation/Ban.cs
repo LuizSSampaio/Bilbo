@@ -23,7 +23,7 @@ public class Ban : CommandFramework
 
     // TODO: Role based permissions(Ex: mods can ban only with the bot)
     // TODO: Command response on a specific channel(Configurable at the website)
-    public override void CommandAction(SocketSlashCommand command)
+    public override async void CommandAction(SocketSlashCommand command)
     {
         var authorPermissionChecker =
             new AuthorPermissionChecker(command, new[] { GuildPermission.BanMembers }, null, null);
@@ -49,10 +49,10 @@ public class Ban : CommandFramework
             ? $"Banned by {command.User.Username}#{command.User.Discriminator}"
             : $"Banned by {command.User.Username}");
 
-        user.SendMessageAsync("", false, embedBuilder.Build());
-        user.BanAsync(days, reason);
+        await user.SendMessageAsync("", false, embedBuilder.Build());
+        await user.BanAsync(days, reason);
 
         embedBuilder.WithDescription($"{user?.Mention} has been banned.");
-        command.RespondAsync("", new[] { embedBuilder.Build() });
+        await command.RespondAsync("", new[] { embedBuilder.Build() });
     }
 }

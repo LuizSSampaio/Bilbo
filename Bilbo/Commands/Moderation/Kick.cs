@@ -22,7 +22,7 @@ public class Kick : CommandFramework
 
     // TODO: Role based permissions(Ex: mods can kick only with the bot) 
     // TODO: Command response on a specific channel(Configurable at the website)
-    public override void CommandAction(SocketSlashCommand command)
+    public override async void CommandAction(SocketSlashCommand command)
     {
         var authorPermissionChecker =
             new AuthorPermissionChecker(command, new[] { GuildPermission.KickMembers }, null, null);
@@ -47,10 +47,10 @@ public class Kick : CommandFramework
             ? $"Kicked by {command.User.Username}#{command.User.Discriminator}"
             : $"Kicked by {command.User.Username}");
         
-        user.SendMessageAsync("", false, embedBuilder.Build());
+        await user.SendMessageAsync("", false, embedBuilder.Build());
         user?.KickAsync(reason);
         
         embedBuilder.WithDescription($"{user?.Mention} has been kicked.");
-        command.RespondAsync("", new[] { embedBuilder.Build() });
+        await command.RespondAsync("", new[] { embedBuilder.Build() });
     }
 }
