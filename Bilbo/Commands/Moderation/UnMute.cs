@@ -20,12 +20,26 @@ public class UnMute : CommandFramework
         _client = client;
     }
 
+    // TODO: Role based permissions(Ex: mods can ban only with the bot)
+    // TODO: Command response on a specific channel(Configurable at the website)
+    // TODO: Check if the bot has permissions to unMute the user
     public override async void CommandAction(SocketSlashCommand command)
     {
         var authorPermissionChecker =
-            new AuthorPermissionChecker(command, new[] { GuildPermission.MuteMembers }, null, null);
+            new AuthorPermissionChecker(command, new[] { GuildPermission.ModerateMembers }, null, null);
 
         if (!authorPermissionChecker.HasPermissions)
+        {
+            return;
+        }
+        
+        if (command.Channel is SocketGuildChannel guildChannel &&
+            !BotPermissionChecker.CanSendMessageToChannel(command, guildChannel))
+        {
+            return;
+        }
+        
+        if (!BotPermissionChecker.BotCheckDiscord(command, _client, new[] { GuildPermission.ModerateMembers }))
         {
             return;
         }
@@ -41,11 +55,28 @@ public class UnMute : CommandFramework
         embedBuilder.AddField("Reason: ", reason ?? "No reason provided.");
         
         embedBuilder.CustomIdentifiedFooter("Unmuted", command.User);
+
+        try
+        {
+            await user.SendMessageAsync("", false, embedBuilder.Build());
+        }
+        catch
+        {
+            // ignored
+        }
+
+        try
+        {
+            await user!.RemoveTimeOutAsync(new RequestOptions { AuditLogReason = reason });
+        }
+        catch
+        {
+            var genericErrorMessage = new GenericErrorMessage("The user has a higher role than the bot.");
+            await command.RespondAsync("", new[] { genericErrorMessage.Build() }, ephemeral: true);
+            return;
+        }
         
-        await user.SendMessageAsync("", false, embedBuilder.Build());
-        await user!.RemoveTimeOutAsync(new RequestOptions { AuditLogReason = reason });
-        
-        embedBuilder.WithDescription($"{user?.Mention} has been unmuted.");
+        embedBuilder.WithDescription($"{user.Mention} has been unmuted.");
         await command.RespondAsync("", new[] { embedBuilder.Build() });
     }
 }
