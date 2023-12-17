@@ -44,18 +44,39 @@ public class Status : CommandFramework
 
     public override async void CommandAction(SocketSlashCommand command)
     {
-        var builder = new CustomEmbedBuilder();
+        if (command.Channel is SocketGuildChannel guildChannel &&
+            !BotPermissionChecker.CanSendMessageToChannel(command, guildChannel))
+        {
+            return;
+        }
 
-        builder.WithTitle("📊 Status");
-        builder.WithDescription("[Click here](https://uptime.lsamp.net/status/bilbo) to check the status website.");
+        var embedBuilder = new CustomEmbedBuilder();
 
-        builder.AddField("⏳ Uptime: ", GetUptime(), true);
-        builder.AddField("📡 Latency: ", $"{GetLatency()}ms", true);
-        builder.AddField("💻 Number of Servers: ", GetGuildCount(), true);
-        builder.AddField("🙍 Number of Users: ", GetUsersCount(), true);
-        builder.AddField("📢 Number of Channels: ", GetChannelCount(), true);
-        builder.AddField("🖥️ Check my website: ", "[Click Here](https://bilbo.lsamp.net)", true);
+        embedBuilder.WithTitle("📊 Status");
+        embedBuilder.WithDescription("[Click here](https://uptime.lsamp.net/status/bilbo) to check the status website.");
 
-        await command.RespondAsync("", new[] { builder.Build() });
+        embedBuilder.AddField("⏳ Uptime: ", GetUptime(), true);
+        embedBuilder.AddField("📡 Latency: ", $"{GetLatency()}ms", true);
+        embedBuilder.AddField("💻 Number of Servers: ", GetGuildCount(), true);
+        embedBuilder.AddField("🙍 Number of Users: ", GetUsersCount(), true);
+        embedBuilder.AddField("📢 Number of Channels: ", GetChannelCount(), true);
+        embedBuilder.AddField("🖥️ Check my website: ", "[Click Here](https://bilbo.lsamp.net)", true);
+
+        try
+        {
+            await command.RespondAsync("", new[] { embedBuilder.Build() }, ephemeral: true);
+        }
+        catch
+        {
+            var genericErrorMessage = new GenericErrorMessage();
+            try
+            {
+                await command.RespondAsync("", new[] { genericErrorMessage.Build() }, ephemeral: true);
+            }
+            catch
+            {
+                // ignored
+            }
+        }
     }
 }

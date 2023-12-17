@@ -11,6 +11,12 @@ public class Help : CommandFramework
 
     public override async void CommandAction(SocketSlashCommand command)
     {
+        if (command.Channel is SocketGuildChannel guildChannel &&
+            !BotPermissionChecker.CanSendMessageToChannel(command, guildChannel))
+        {
+            return;
+        }
+        
         var embedBuilder = new CustomEmbedBuilder();
 
         embedBuilder.WithTitle("🔮 Help");
@@ -25,6 +31,21 @@ public class Help : CommandFramework
         embedBuilder.WithFooter(
             "Warning: This bot is still in development, so some commands may not work as expected.");
 
-        await command.RespondAsync("", new[] { embedBuilder.Build() });
+        try
+        {
+            await command.RespondAsync("", new[] { embedBuilder.Build() }, ephemeral: true);
+        }
+        catch
+        {
+            var genericErrorMessage = new GenericErrorMessage();
+            try
+            {
+                await command.RespondAsync("", new[] { genericErrorMessage.Build() }, ephemeral: true);
+            }
+            catch
+            {
+                // ignored
+            }
+        }
     }
 }
