@@ -16,6 +16,7 @@ public class Program
 
     // Moderation Commands
     private Ban _banCommand;
+    private UnBan _unBanCommand;
     private Kick _kickCommand;
     private Mute _muteCommand;
     private UnMute _unMuteCommand;
@@ -33,6 +34,7 @@ public class Program
 
         _statusCommand = new Status(_client);
         _banCommand = new Ban(_client);
+        _unBanCommand = new UnBan(_client);
         _kickCommand = new Kick(_client);
         _muteCommand = new Mute(_client);
         _unMuteCommand = new UnMute(_client);
