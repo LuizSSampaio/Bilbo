@@ -31,21 +31,6 @@ public class Help : CommandFramework
         embedBuilder.WithFooter(
             "Warning: This bot is still in development, so some commands may not work as expected.");
 
-        try
-        {
-            await command.RespondAsync("", new[] { embedBuilder.Build() }, ephemeral: true);
-        }
-        catch
-        {
-            var genericErrorMessage = new GenericErrorMessage();
-            try
-            {
-                await command.RespondAsync("", new[] { genericErrorMessage.Build() }, ephemeral: true);
-            }
-            catch
-            {
-                // ignored
-            }
-        }
+        await command.RespondAsync("", new[] { embedBuilder.Build() }, ephemeral: true);
     }
 }

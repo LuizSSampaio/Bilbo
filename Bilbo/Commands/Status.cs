@@ -62,21 +62,6 @@ public class Status : CommandFramework
         embedBuilder.AddField("📢 Number of Channels: ", GetChannelCount(), true);
         embedBuilder.AddField("🖥️ Check my website: ", "[Click Here](https://bilbo.lsamp.net)", true);
 
-        try
-        {
-            await command.RespondAsync("", new[] { embedBuilder.Build() }, ephemeral: true);
-        }
-        catch
-        {
-            var genericErrorMessage = new GenericErrorMessage();
-            try
-            {
-                await command.RespondAsync("", new[] { genericErrorMessage.Build() }, ephemeral: true);
-            }
-            catch
-            {
-                // ignored
-            }
-        }
+        await command.RespondAsync("", new[] { embedBuilder.Build() }, ephemeral: true);
     }
 }
