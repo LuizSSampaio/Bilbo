@@ -71,6 +71,7 @@ public class Mute : CommandFramework
     
     // TODO: Role based permissions(Ex: mods can mute only with the bot) 
     // TODO: Command response on a specific channel(Configurable at the website)
+    // TODO: Add a button to contest the mute
     public override async void CommandAction(SocketSlashCommand command)
     {
         var authorPermissionChecker =
