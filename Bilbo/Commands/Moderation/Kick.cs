@@ -43,9 +43,7 @@ public class Kick : CommandFramework
         embedBuilder.AddField("Reason: ", reason ?? "No reason provided.");
         embedBuilder.WithColor(Color.Red);
         
-        embedBuilder.WithFooter(command.User.Discriminator != "0000"
-            ? $"Kicked by {command.User.Username}#{command.User.Discriminator}"
-            : $"Kicked by {command.User.Username}");
+        embedBuilder.CustomIdentifiedFooter("Kicked", command.User);
         
         await user.SendMessageAsync("", false, embedBuilder.Build());
         user?.KickAsync(reason);

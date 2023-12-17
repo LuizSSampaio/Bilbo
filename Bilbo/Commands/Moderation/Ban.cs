@@ -44,10 +44,8 @@ public class Ban : CommandFramework
         embedBuilder.WithDescription($"You have been banned from {guild}.");
         embedBuilder.AddField("Reason: ", reason ?? "No reason provided.");
         embedBuilder.WithColor(Color.Red);
-
-        embedBuilder.WithFooter(command.User.Discriminator != "0000"
-            ? $"Banned by {command.User.Username}#{command.User.Discriminator}"
-            : $"Banned by {command.User.Username}");
+        
+        embedBuilder.CustomIdentifiedFooter("Banned", command.User);
 
         await user.SendMessageAsync("", false, embedBuilder.Build());
         await user.BanAsync(days, reason);
