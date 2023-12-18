@@ -23,13 +23,24 @@ public class Ban : CommandFramework
 
     // TODO: Role based permissions(Ex: mods can ban only with the bot)
     // TODO: Command response on a specific channel(Configurable at the website)
-    // TODO: Add a button to contest the mute
+    // TODO: Add a button to contest the ban
     public override async void CommandAction(SocketSlashCommand command)
     {
         var authorPermissionChecker =
             new AuthorPermissionChecker(command, new[] { GuildPermission.BanMembers }, null, null);
 
         if (!authorPermissionChecker.HasPermissions)
+        {
+            return;
+        }
+        
+        if (command.Channel is SocketGuildChannel guildChannel &&
+            !BotPermissionChecker.CanSendMessageToChannel(command, guildChannel))
+        {
+            return;
+        }
+        
+        if (!BotPermissionChecker.BotCheckDiscord(command, _client, new[] { GuildPermission.BanMembers }))
         {
             return;
         }
@@ -48,8 +59,25 @@ public class Ban : CommandFramework
         
         embedBuilder.CustomIdentifiedFooter("Banned", command.User);
 
-        await user.SendMessageAsync("", false, embedBuilder.Build());
-        await user.BanAsync(days, reason);
+        try
+        {
+            await user.SendMessageAsync("", false, embedBuilder.Build());
+        }
+        catch
+        {
+            // ignored
+        }
+
+        try
+        {
+            await user.BanAsync(days, reason);
+        }
+        catch
+        {
+            var genericErrorMessage = new GenericErrorMessage("The user has a higher role than the bot.");
+            await command.RespondAsync("", new[] { genericErrorMessage.Build() }, ephemeral: true);
+            return;
+        }
 
         embedBuilder.WithDescription($"{user?.Mention} has been banned.");
         await command.RespondAsync("", new[] { embedBuilder.Build() });
