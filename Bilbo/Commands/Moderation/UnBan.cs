@@ -19,24 +19,26 @@ public class UnBan : CommandFramework
     {
         _client = client;
     }
-
-    private static async void ErrorMessage(SocketInteraction command, string error)
-    {
-        var embedBuilder = new CustomEmbedBuilder();
-        
-        embedBuilder.WithTitle("🔨 Unban");
-        embedBuilder.WithDescription(error);
-        embedBuilder.WithColor(Color.Red);
-        
-        await command.RespondAsync("", new[] { embedBuilder.Build() }, ephemeral: true);
-    }
     
+    // TODO: Role based permissions(Ex: mods can ban only with the bot)
+    // TODO: Command response on a specific channel(Configurable at the website)
     public override async void CommandAction(SocketSlashCommand command)
     {
         var authorPermissionChecker =
             new AuthorPermissionChecker(command, new[] { GuildPermission.BanMembers }, null, null);
 
         if (!authorPermissionChecker.HasPermissions)
+        {
+            return;
+        }
+        
+        if (command.Channel is SocketGuildChannel guildChannel &&
+            !BotPermissionChecker.CanSendMessageToChannel(command, guildChannel))
+        {
+            return;
+        }
+        
+        if (!BotPermissionChecker.BotCheckDiscord(command, _client, new[] { GuildPermission.BanMembers }))
         {
             return;
         }
@@ -61,21 +63,29 @@ public class UnBan : CommandFramework
             }
             catch
             {
-                ErrorMessage(command, "The user id is not valid for unban command.");
+                var genericErrorMessage = new GenericErrorMessage("The user id is not valid for unban command.");
+                await command.RespondAsync("", new[] { genericErrorMessage.Build() });
                 return;
             }
             var user = _client.GetUser(userId);
             if (user != null)
             {
-                await user.SendMessageAsync("", false, embedBuilder.Build());
-
+                try
+                {
+                    await user.SendMessageAsync("", false, embedBuilder.Build());
+                }
+                catch
+                {
+                    // ignored
+                }
             }
 
             embedBuilder.WithDescription($"{userId} has been unbanned.");
         }
         else
         {
-            ErrorMessage(command, "The user id is not valid.");
+            var genericErrorMessage = new GenericErrorMessage("The user id is not valid.");
+            await command.RespondAsync("", new[] { genericErrorMessage.Build() });
             return;
         }
 
