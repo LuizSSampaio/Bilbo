@@ -35,7 +35,14 @@ public class BotPermissionChecker
         embedBuilder.WithDescription("I am missing the following permissions to use this command:");
         embedBuilder.AddField("Send Messages", "I do not have this permission.");
 
-        commandUser.SendMessageAsync("", false, embedBuilder.Build());
+        try
+        {
+            commandUser.SendMessageAsync("", false, embedBuilder.Build());
+        }
+        catch
+        {
+            // ignored
+        }
         return false;
     }
 
